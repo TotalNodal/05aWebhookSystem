@@ -22,6 +22,18 @@ namespace AirlineWeb.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("{secret}", Name = "GetSubscriptionBySecret")]
+        public ActionResult<WebhookSubscriptionReadDto> GetSubscriptionBySecret(string secret)
+        {
+            var subscription = _context.WebhookSubscriptions.FirstOrDefault(s => s.Secret == secret);
+            if (subscription == null)
+            {
+                return NotFound();
+            }
+            
+            return Ok(_mapper.Map<WebhookSubscriptionReadDto>(subscription));
+        }
+
 
         //pass back read dto and expects to receive a create dto as an input
         [HttpPost]
@@ -49,6 +61,10 @@ namespace AirlineWeb.Controllers
 
                 //map the subscription to the read dto
                 var webhookSubscriptionReadDto = _mapper.Map<WebhookSubscriptionReadDto>(subscription);
+
+                //return the read dto
+                return CreatedAtRoute(nameof(GetSubscriptionBySecret), new {secret = webhookSubscriptionReadDto.Secret},
+                                       webhookSubscriptionReadDto);
             }
             else
             {
