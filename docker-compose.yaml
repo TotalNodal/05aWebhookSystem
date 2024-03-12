@@ -8,11 +8,3 @@ services:
       - "5672:5672"
     labels:
       NAME: "some-rabbit"
-  sqlserver:
-    image: "mcr.microsoft.com/mssql/server:2019-latest"
-    ports:
-      - "1433:1433"
-    environment:
-      SA_PASSWORD: "P@ssw0rd"
-      ACCEPT_EULA: "Y"
-      MSSQL_PID: "Express"
