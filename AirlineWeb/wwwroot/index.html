@@ -11,41 +11,90 @@
 </head>
 
 <body>
-<div class="container">
-    <h1 class="display-3 text-center my-4">Web Air App</h1>
-    <h3 class="display-5 text-center my-4">Webhook Registration</h3>
+    <div class="container">
+        <h1 class="display-3 text-center my-4">Web Air App</h1>
+        <h3 class="display-5 text-center my-4">Webhook Registration</h3>
 
-    <div id="alertSuccess" class="alert alert-success">
-        <strong>Success</strong> <label id="successMessage">Webhook Registered</label>
-    </div>
-
-    <div id="alertDanger" class="alert alert-danger">
-        <strong>Danger</strong> <label id="dangerMessage">Please check the log files</label>
-    </div>
-
-
-    <div id="registration">
-        <div class="form-group">
-            <label for="webhook">Enter your Webhook URI</label>
-            <input class="form-control form-control-lg" type="text" id="webhook" placeholder="Enter URI">
-            <small class="form-text text-muted"> Your webhook URI will not be shared</small>
+        <div id="alertSuccess" class="alert alert-success">
+            <strong>Success</strong> <label id="successMessage">Webhook Registered</label>
         </div>
+
+        <div id="alertDanger" class="alert alert-danger">
+            <strong>Danger</strong> <label id="dangerMessage">Please check the log files</label>
+        </div>
+
+
+        <div id="registration">
+            <div class="form-group">
+                <label for="webhook">Enter your Webhook URI</label>
+                <input class="form-control form-control-lg" type="text" id="webhook" placeholder="Enter URI">
+                <small class="form-text text-muted"> Your webhook URI will not be shared</small>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label for="webhooktype">Webhook Type</label>
+            <select class="form-control" id="webhooktype">
+                <option>Price Change</option>
+                <option>Seat Availability</option>
+                <option>Flight Delays & Disruptions</option>
+            </select>
+        </div>
+
+        <div>
+            <button id="register" class="btn btn-primary btn-block" type="submit">Register</button>
+        </div>
+
     </div>
-
-
-    <div class="form-group">
-        <label for="webhooktype">Webhook Type</label>
-        <select class="form-control" id="webhooktype">
-            <option>Price Change</option>
-            <option>Seat Availability</option>
-            <option>Flight Delays & Disruptions</option>
-        </select>
-    </div>
-
-    <div>
-        <button id="register" class="btn btn-primary btn-block" type="submit">Register</button>
-    </div>
-
-</div>
 </body>
+
+<script>
+    var registerButton = document.getElementById("register");
+    var webhookURI = document.getElementById("webhook");
+    var webhookType = document.getElementById("webhooktype");
+    var successBox = document.getElementById("alertSuccess");
+    var dangerBox = document.getElementById("alertDanger");
+    var successMessage = document.getElementById("successMessage");
+    var dangerMessage = document.getElementById("dangerMessage");
+
+    successBox.style.display = "none";
+    dangerBox.style.display = "none";
+
+    registerButton.onclick = function () {
+        successBox.style.display = "none";
+        dangerBox.style.display = "none";
+
+        if (webhookURI.value == "") {
+            dangerMessage.innerHTML = "Please enter a valid Webhook URI";
+            dangerBox.style.display = "block";
+        }
+        else
+        {
+            (async () => {
+                const rawResponse = await fetch('https://localhost:5121/api/WebhookSubscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "webhookURI": webhookURI.value,
+                        "webhookType": webhookType.value
+                    })
+                });
+            
+                const content = await rawResponse.json();
+
+                successMessage.innerHTML = "Webhook Registered please use secret: " + content.secret + " to validate inbound requests";
+                successBox.style.display = "block";
+
+                console.log(content);
+
+            })();
+        }
+
+    }
+    
+</script>
+
 </html>
