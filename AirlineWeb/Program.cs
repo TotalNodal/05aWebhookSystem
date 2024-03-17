@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using AirlineWeb.Data;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using AirlineWeb.MessageBus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+//builder.Services.AddSingleton<IMessageBusClient MessageBusClient> ();
+builder.Services.AddSingleton<IMessageBusClient, MessageBusClient>();
 
 
 
