@@ -67,9 +67,11 @@ git clone https://github.com/TotalNodal/05aWebhookSystem
 
 To register a webhook subscription, open Insomnia or similar tool and follow these steps:
 
-1. **Create Endpoint for Travel Agent**: Use the following to generate a secret that will be used by a travel agent to validate POST requests. https://localhost:5121/index.html
+1. **Create Endpoint for Travel Agent**: Use the following to generate a secret that will be used by a travel agent to validate POST requests. Once all three apps are running copy and past this into a browser https://localhost:5121/index.html and then use this as the URI http://localhost:5113/api/Notifications
 
-2. **Create Flight in db**: Use the following endpoint to create a flight record in the db:
+2. **Update SubscriptionSecrets in db**: Manually enter the secret from step 1 into the "secret" column in the SubscriptionsSecret table on sql server and enter a publisher name e.g. CardoAir to register that endpoint to listen for all updates. If you right click on the table then click "edit top 200 rows" you will be able to input this information there.   
+
+3. **Create Flight in db**: Use the following endpoint to create a flight record in the db:
 
 - POST Request to https://localhost:5121/api/Flights with payload type JSON, payload example
 {
@@ -77,7 +79,7 @@ To register a webhook subscription, open Insomnia or similar tool and follow the
 	"Price": 1000.00
 }
 
-3. **Update Flight in db**: Use the following endpoint to update a flight record in the db:
+4. **Update Flight in db**: Use the following endpoint to update a flight record in the db:
 
 - PUT request to https://localhost:5121/api/Flights/1 with payload type JSON, payload example
 {
@@ -86,23 +88,10 @@ To register a webhook subscription, open Insomnia or similar tool and follow the
 }
 
 
-4. **Get Flight Details**: Use the following endpoint to get a flight record from the db:
+5. **Get Flight Details**: Use the following endpoint to get a flight record from the db:
 
 - GET request to https://localhost:5121/api/Flights/SK932 
 
-
-5. **Price change with secret** Use the following endpoint to update a flight record in the db:
-
-- POST request to http://localhost:5113/api/Notifications with payload type JSON, payload example (Publisher is the URI you used to generate the secret earlier in step 1)
-
-{
-	"FlightCode": "SK932",
-	"Publisher": "KEA AIR",
-	"Secret": "771f6ad2-54ad-409e-b86e-7e493d79739d",
-	"NewPrice": 100.00,
-	"OldPrice": 1000.00,
-	"WebhookType": "FlightChange"
-}
 
 
 
