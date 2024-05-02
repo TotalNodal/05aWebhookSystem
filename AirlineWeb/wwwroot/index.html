@@ -45,56 +45,69 @@
         <div>
             <button id="register" class="btn btn-primary btn-block" type="submit">Register</button>
         </div>
+        
+        <!-- Add the login button for GitHub -->
+        <div>
+            <button id="githubLogin" class="btn btn-primary btn-block" type="button">Login with GitHub</button>
+        </div>
+
 
     </div>
-</body>
 
-<script>
-    var registerButton = document.getElementById("register");
-    var webhookURI = document.getElementById("webhook");
-    var webhookType = document.getElementById("webhooktype");
-    var successBox = document.getElementById("alertSuccess");
-    var dangerBox = document.getElementById("alertDanger");
-    var successMessage = document.getElementById("successMessage");
-    var dangerMessage = document.getElementById("dangerMessage");
+    <script>
+        var registerButton = document.getElementById("register");
+        var webhookURI = document.getElementById("webhook");
+        var webhookType = document.getElementById("webhooktype");
+        var successBox = document.getElementById("alertSuccess");
+        var dangerBox = document.getElementById("alertDanger");
+        var successMessage = document.getElementById("successMessage");
+        var dangerMessage = document.getElementById("dangerMessage");
 
-    successBox.style.display = "none";
-    dangerBox.style.display = "none";
-
-    registerButton.onclick = function () {
         successBox.style.display = "none";
         dangerBox.style.display = "none";
 
-        if (webhookURI.value == "") {
-            dangerMessage.innerHTML = "Please enter a valid Webhook URI";
-            dangerBox.style.display = "block";
+        registerButton.onclick = function () {
+            successBox.style.display = "none";
+            dangerBox.style.display = "none";
+
+            if (webhookURI.value == "") {
+                dangerMessage.innerHTML = "Please enter a valid Webhook URI";
+                dangerBox.style.display = "block";
+            }
+            else {
+                (async () => {
+                    const rawResponse = await fetch('https://localhost:5121/api/WebhookSubscription', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            "webhookURI": webhookURI.value,
+                            "webhookType": webhookType.value
+                        })
+                    });
+
+                    const content = await rawResponse.json();
+
+                    successMessage.innerHTML = "Webhook Registered please use secret: " + content.secret + " to validate inbound requests";
+                    successBox.style.display = "block";
+
+                    console.log(content);
+
+                })();
+            }
+
         }
-        else
-        {
-            (async () => {
-                const rawResponse = await fetch('https://localhost:5121/api/WebhookSubscription', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        "webhookURI": webhookURI.value,
-                        "webhookType": webhookType.value
-                    })
-                });
-            
-                const content = await rawResponse.json();
 
-                successMessage.innerHTML = "Webhook Registered please use secret: " + content.secret + " to validate inbound requests";
-                successBox.style.display = "block";
+        // Add event listener for the GitHub login button
+        var githubLoginButton = document.getElementById("githubLogin");
 
-                console.log(content);
+        githubLoginButton.onclick = function () {
+            // Redirect to the GitHub login page
+            window.location.href = "/GithubLogin.html";
+        };
+    </script>
 
-            })();
-        }
-
-    }
-    
-</script>
+</body>
 
 </html>

@@ -15,6 +15,12 @@ using AirlineWeb.Data;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using AirlineWeb.MessageBus;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +33,40 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 //builder.Services.AddSingleton<IMessageBusClient MessageBusClient> ();
 builder.Services.AddSingleton<IMessageBusClient, MessageBusClient>();
+
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = "Cookies"; // Set the default scheme to Cookies
+        options.DefaultChallengeScheme = "GitHub"; // Set the default challenge scheme to GitHub
+    })
+    .AddCookie("Cookies") // Add cookie authentication
+    .AddOAuth("GitHub", options =>
+    {
+        options.ClientId = "Ov23liyNLN0GZkYwbvRe";
+        options.ClientSecret = "693577f696b5b6fc388587b920a4f5ec082f3208";
+        options.CallbackPath = "/signin-github";
+        options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
+        options.TokenEndpoint = "https://github.com/login/oauth/access_token";
+        options.UserInformationEndpoint = "https://api.github.com/user";
+        options.SaveTokens = true;
+
+        options.ClaimActions.MapJsonKey("urn:github:login", "login");
+        options.ClaimActions.MapJsonKey("urn:github:id", "id");
+        options.ClaimActions.MapJsonKey("urn:github:name", "name");
+        options.ClaimActions.MapJsonKey("urn:github:url", "html_url");
+        options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
+
+        options.Events = new OAuthEvents
+        {
+            OnCreatingTicket = context =>
+            {
+                // You can customize what happens when the GitHub user is authenticated
+                return Task.CompletedTask;
+            }
+        };
+    });
+
 
 
 
@@ -50,8 +90,10 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
